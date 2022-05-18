@@ -53,3 +53,6 @@ func (rs *RoleService) GetAll() ([]*entities.Role, error) {
 	log.Println("success get all roles")
 	return roles, nil
 }
+
+// TODO: add method to convert Entity Role to Model Role
+// TODO: add method to convert NewRole to Entity Role
