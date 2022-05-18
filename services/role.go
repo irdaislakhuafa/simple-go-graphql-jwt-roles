@@ -40,3 +40,16 @@ func (rs *RoleService) GetByName(ctx context.Context, name *string) (*entities.R
 	log.Println("success get role by name")
 	return role, nil
 }
+
+func (rs *RoleService) GetAll() ([]*entities.Role, error) {
+	log.Println("entering method to get all roles")
+
+	var roles []*entities.Role
+	if err := config.GetDB().Find(&roles).Error; err != nil {
+		log.Println("failed to get all roles:", err)
+		return nil, err
+	}
+
+	log.Println("success get all roles")
+	return roles, nil
+}
