@@ -12,6 +12,11 @@ type LoginUser struct {
 	Password string `json:"password"`
 }
 
+type NewRole struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 type NewUser struct {
 	Name     string   `json:"name"`
 	Email    string   `json:"email"`
@@ -21,6 +26,20 @@ type NewUser struct {
 
 type ResponseToken struct {
 	Token string `json:"token"`
+}
+
+type Role struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type RoleMutationOptions struct {
+	Save *Role `json:"save"`
+}
+
+type RoleQueryOptions struct {
+	GetAll []*Role `json:"getAll"`
 }
 
 type User struct {

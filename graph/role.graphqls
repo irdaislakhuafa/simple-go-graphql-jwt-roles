@@ -1,0 +1,18 @@
+type Role {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+input NewRole {
+  name: String!
+  description: String!
+}
+
+type RoleQueryOptions {
+  getAll: [Role!]! @goField(forceResolver: true)
+}
+
+type RoleMutationOptions {
+  save(newRole: NewRole!): Role! @goField(forceResolver: true)
+}

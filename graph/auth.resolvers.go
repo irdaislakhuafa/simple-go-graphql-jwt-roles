@@ -23,7 +23,15 @@ func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOptions, error)
 	panic(fmt.Errorf("not implemented"))
 }
 
+func (r *mutationResolver) Role(ctx context.Context) (*model.RoleMutationOptions, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) User(ctx context.Context) (*model.UserOptions, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Role(ctx context.Context) (*model.RoleQueryOptions, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

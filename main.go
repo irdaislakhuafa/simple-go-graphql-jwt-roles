@@ -7,14 +7,22 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
+	"github.com/joho/godotenv"
 )
 
 const defaultPort = "8080"
 
 func main() {
-	port := os.Getenv("PORT")
+	// load .env file
+	godotenv.Load(".env")
+
+	// initialize database
+	config.InitDB()
+
+	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = defaultPort
 	}
