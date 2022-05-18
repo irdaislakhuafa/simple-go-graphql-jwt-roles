@@ -27,3 +27,16 @@ func (rs *RoleService) Save(ctx context.Context, role *entities.Role) (*entities
 	log.Println("success save new role")
 	return role, nil
 }
+
+func (rs *RoleService) GetByName(ctx context.Context, name *string) (*entities.Role, error) {
+	log.Println("entering method to get role by name")
+
+	role := &entities.Role{}
+	if err := config.GetDB().Where("LOWER(name) = LOWER(?)", *name).First(role).Error; err != nil {
+		log.Println("failed to get role by name:", err)
+		return nil, err
+	}
+
+	log.Println("success get role by name")
+	return role, nil
+}
