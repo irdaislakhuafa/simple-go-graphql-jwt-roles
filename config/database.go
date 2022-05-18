@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +20,16 @@ func GetDB() *gorm.DB {
 // for initialize database connection
 func InitDB() {
 	log.Println("entering method to initialize database connection")
+
+	url := getStringUrlFromEnv()
+	var err error
+	db, err = gorm.Open(mysql.Open(*url), &gorm.Config{})
+	if err != nil {
+		panic("error while connect to database: " + err.Error())
+	}
+
 	log.Printf(`success database connected to "%s"`, os.Getenv("DB_DATABASE"))
+	enableMigrations()
 }
 
 func getStringUrlFromEnv() *string {
@@ -35,4 +46,10 @@ func getStringUrlFromEnv() *string {
 
 	log.Println("success generate string database url")
 	return &url
+}
+
+func enableMigrations() {
+	log.Println("entering method to migrate table to database")
+	GetDB().AutoMigrate(&entities.User{}, &entities.Role{})
+	log.Println("success migrating table")
 }
