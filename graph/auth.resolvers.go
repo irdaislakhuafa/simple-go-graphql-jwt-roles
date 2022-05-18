@@ -11,13 +11,24 @@ import (
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *authOptionsResolver) Register(ctx context.Context, obj *model.AuthOptions, newUser model.NewUser) (*model.ResponseToken, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *authOptionsResolver) Login(ctx context.Context, obj *model.AuthOptions, user *model.LoginUser) (*model.ResponseToken, error) {
 	panic(fmt.Errorf("not implemented"))
 }
+
+func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOptions, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) User(ctx context.Context) (*model.UserOptions, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// AuthOptions returns generated.AuthOptionsResolver implementation.
+func (r *Resolver) AuthOptions() generated.AuthOptionsResolver { return &authOptionsResolver{r} }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
@@ -25,5 +36,6 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+type authOptionsResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
