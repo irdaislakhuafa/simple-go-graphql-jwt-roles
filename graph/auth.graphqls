@@ -19,8 +19,10 @@ type AuthOptions {
 
 type Query {
   user: UserOptions! @goField(forceResolver: true)
+  role: RoleQueryOptions! @goField(forceResolver: true)
 }
 
 type Mutation {
   auth: AuthOptions! @goField(forceResolver: true)
+  role: RoleMutationOptions! @goField(forceResolver: true)
 }
