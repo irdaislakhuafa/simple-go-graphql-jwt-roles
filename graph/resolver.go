@@ -8,4 +8,5 @@ import "github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/services"
 
 type Resolver struct {
 	RoleService *services.RoleService
+	UserService services.UserServiceInterface
 }
