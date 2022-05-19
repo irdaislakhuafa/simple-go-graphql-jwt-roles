@@ -38,6 +38,10 @@ func generateJwtTokenWithClaims(ctx context.Context, user *entities.User) *jwt.T
 				}
 				return roles
 			}(),
+
+			StandardClaims: jwt.StandardClaims{
+				// TODO: add IssueAt and ExpiredAt
+			},
 		},
 	)
 	log.Println("success generate jwt.Token with claims")

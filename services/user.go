@@ -31,7 +31,7 @@ func GetUserService() UserServiceInterface {
 func (us *UserService) Save(ctx context.Context, user *entities.User) (*entities.User, error) {
 	log.Println("entering method to save new user")
 
-	if err := config.GetDB().Save(user).Error; err != nil {
+	if err := config.GetDB().Create(user).Error; err != nil {
 		log.Println("failed to save new user:", err)
 		return nil, err
 	}

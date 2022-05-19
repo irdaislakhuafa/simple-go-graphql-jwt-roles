@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/tools"
@@ -54,6 +56,7 @@ func (as *AuthService) Register(ctx context.Context, newUser *model.NewUser) (*m
 
 	// check is user already exists
 	us := GetUserService()
+	rs := GetRoleService()
 	user, err := us.GetByEmail(ctx, &newUser.Email)
 	if err != nil || user == nil {
 		if err != gorm.ErrRecordNotFound {
@@ -64,6 +67,21 @@ func (as *AuthService) Register(ctx context.Context, newUser *model.NewUser) (*m
 	// convert to user entities
 	user = us.ConvertNewUserToEntityUserWithoutRoles(newUser)
 
+	// get roles by names
+	for _, v := range newUser.Roles {
+		role, err := rs.GetByName(context.Background(), &v)
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, fmt.Errorf("role \"%s\" not found!", strings.ToUpper(v))
+			}
+			return nil, err
+		}
+		user.Roles = append(user.Roles, *role) // FIXME: why this error
+	}
+
+	// save user and roles in bridge table
+	// TODO: how save user_roles
+
 	// save new user
 	user, err = us.Save(ctx, user)
 	if err != nil || user == nil {
@@ -72,6 +90,9 @@ func (as *AuthService) Register(ctx context.Context, newUser *model.NewUser) (*m
 
 	// generate token
 	tokenString, err := GenerateTokenString(ctx, user)
+	if err != nil {
+		return nil, err
+	}
 
 	// return token
 	log.Println("success register")
