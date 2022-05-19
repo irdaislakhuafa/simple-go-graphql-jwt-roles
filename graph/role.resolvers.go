@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
@@ -27,7 +26,19 @@ func (r *roleMutationOptionsResolver) Save(ctx context.Context, obj *model.RoleM
 }
 
 func (r *roleQueryOptionsResolver) GetAll(ctx context.Context, obj *model.RoleQueryOptions) ([]*model.Role, error) {
-	panic(fmt.Errorf("not implemented"))
+	// get all roles
+	roles, err := r.RoleService.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	// convert to model role
+	var modelRoles []*model.Role
+	for _, v := range roles {
+		modelRoles = append(modelRoles, r.RoleService.ConvertEntityRoleToModelRole(v))
+	}
+
+	return modelRoles, nil
 }
 
 // RoleMutationOptions returns generated.RoleMutationOptionsResolver implementation.
