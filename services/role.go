@@ -11,6 +11,8 @@ import (
 )
 
 type RoleService struct{}
+type RoleServiceInterface interface {
+}
 
 var roleService *RoleService = &RoleService{}
 
