@@ -27,6 +27,7 @@ func GetUserService() UserServiceInterface {
 	return userService
 }
 
+// to save new user
 func (us *UserService) Save(ctx context.Context, user *entities.User) (*entities.User, error) {
 	log.Println("entering method to save new user")
 
@@ -39,6 +40,7 @@ func (us *UserService) Save(ctx context.Context, user *entities.User) (*entities
 	return user, nil
 }
 
+// to get user by email with ignore case
 func (us *UserService) GetByEmail(ctx context.Context, email *string) (*entities.User, error) {
 	log.Println("entering method to get users by email")
 
@@ -52,6 +54,7 @@ func (us *UserService) GetByEmail(ctx context.Context, email *string) (*entities
 	return user, nil
 }
 
+// to get all user
 func (us *UserService) GetAll() ([]*entities.User, error) {
 	log.Println("entering method to get all user")
 
@@ -85,6 +88,7 @@ func (us *UserService) ConvertNewUserToEntityUserWithoutRoles(newUser *model.New
 	return user
 }
 
+// method to convert Entity User to Model User
 func (us *UserService) ConvertEntityUserToModelUser(user *entities.User) *model.User {
 	log.Println("entering method to convert Entity User to Model User")
 	modelUser := &model.User{
