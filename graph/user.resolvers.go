@@ -5,14 +5,23 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
 )
 
 func (r *userOptionsResolver) GetAll(ctx context.Context, obj *model.UserOptions) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	users, err := r.UserService.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var modelUsers []*model.User
+	for _, v := range users {
+		modelUsers = append(modelUsers, r.UserService.ConvertEntityUserToModelUser(v))
+	}
+
+	return modelUsers, nil
 }
 
 // UserOptions returns generated.UserOptionsResolver implementation.

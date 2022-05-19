@@ -32,6 +32,7 @@ func main() {
 	resolverConfig := &generated.Config{
 		Resolvers: &graph.Resolver{
 			RoleService: services.GetRoleService(),
+			UserService: services.GetUserService(),
 		},
 	}
 
