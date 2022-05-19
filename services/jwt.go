@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -56,4 +57,26 @@ func GenerateTokenString(ctx context.Context, user *entities.User) (*string, err
 
 	log.Println("success to generate token string")
 	return &tokenStringm, nil
+}
+
+// method to validate token
+
+func ValidateTokenString(ctx context.Context, tokenString *string) (*jwt.Token, error) {
+	log.Println("entering method to validate token string")
+
+	keyFunc := func(jwtToken *jwt.Token) (any, error) {
+		if _, isOk := jwtToken.Method.(*jwt.SigningMethodHMAC); !isOk {
+			return nil, fmt.Errorf("signing method is not valid")
+		}
+		return secretKey, nil
+	}
+
+	jwtToken, err := jwt.ParseWithClaims(*tokenString, &TokenClaims{}, keyFunc)
+	if err != nil {
+		log.Println("failed to validate token:", err)
+		return nil, err
+	}
+
+	log.Println("success validate token string")
+	return jwtToken, nil
 }
