@@ -16,11 +16,11 @@ func (r *authOptionsResolver) Register(ctx context.Context, obj *model.AuthOptio
 }
 
 func (r *authOptionsResolver) Login(ctx context.Context, obj *model.AuthOptions, user *model.LoginUser) (*model.ResponseToken, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.AuthService.Login(ctx, user)
 }
 
 func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOptions, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.AuthOptions{}, nil
 }
 
 func (r *mutationResolver) Role(ctx context.Context) (*model.RoleMutationOptions, error) {
