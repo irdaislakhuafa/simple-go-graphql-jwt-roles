@@ -6,6 +6,7 @@ import (
 
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
 )
 
 type RoleService struct{}
@@ -55,4 +56,15 @@ func (rs *RoleService) GetAll() ([]*entities.Role, error) {
 }
 
 // TODO: add method to convert Entity Role to Model Role
+func ConvertEntityRoleToModelRole(role *entities.Role) *model.Role {
+	log.Println("entering method to convert Entity Role to Model Role")
+	modelRole := &model.Role{
+		ID:          role.ID,
+		Name:        role.Name,
+		Description: role.Description,
+	}
+	log.Println("success convert")
+	return modelRole
+}
+
 // TODO: add method to convert NewRole to Entity Role
