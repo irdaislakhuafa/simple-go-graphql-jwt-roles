@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
@@ -55,7 +56,7 @@ func (rs *RoleService) GetAll() ([]*entities.Role, error) {
 	return roles, nil
 }
 
-// TODO: add method to convert Entity Role to Model Role
+// method to convert Entity Role to Model Role
 func ConvertEntityRoleToModelRole(role *entities.Role) *model.Role {
 	log.Println("entering method to convert Entity Role to Model Role")
 	modelRole := &model.Role{
@@ -67,4 +68,14 @@ func ConvertEntityRoleToModelRole(role *entities.Role) *model.Role {
 	return modelRole
 }
 
-// TODO: add method to convert NewRole to Entity Role
+// method to convert NewRole to Entity Role
+func ConvertNewRoleToEntityRole(newRole *model.NewRole) *entities.Role {
+	log.Println("entering method to convert NewRole to Entity Role")
+	role := &entities.Role{
+		ID:          uuid.NewString(),
+		Name:        newRole.Name,
+		Description: newRole.Description,
+	}
+	log.Println("success convert")
+	return role
+}
