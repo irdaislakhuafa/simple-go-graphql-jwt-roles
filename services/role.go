@@ -12,11 +12,16 @@ import (
 
 type RoleService struct{}
 type RoleServiceInterface interface {
+	Save(ctx context.Context, role *entities.Role) (*entities.Role, error)
+	GetByName(ctx context.Context, name *string) (*entities.Role, error)
+	GetAll() ([]*entities.Role, error)
+	ConvertEntityRoleToModelRole(role *entities.Role) *model.Role
+	ConvertNewRoleToEntityRole(newRole *model.NewRole) *entities.Role
 }
 
 var roleService *RoleService = &RoleService{}
 
-func GetRoleService() *RoleService {
+func GetRoleService() RoleServiceInterface {
 	return roleService
 }
 
