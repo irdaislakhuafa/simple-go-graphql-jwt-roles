@@ -33,3 +33,16 @@ func (us *UserService) Save(ctx context.Context, user *entities.User) (*entities
 	log.Println("success save new user")
 	return user, nil
 }
+
+func (us *UserService) GetByEmail(ctx context.Context, email *string) (*entities.User, error) {
+	log.Println("entering method to get users by email")
+
+	user := &entities.User{}
+	if err := config.GetDB().Where("LOWER(email) = LOWER(?)", *email).Take(user).Error; err != nil {
+		log.Println("failed to get user by email:", err)
+		return nil, err
+	}
+
+	log.Println("success get user by email")
+	return user, nil
+}
