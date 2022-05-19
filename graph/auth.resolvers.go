@@ -28,7 +28,7 @@ func (r *mutationResolver) Role(ctx context.Context) (*model.RoleMutationOptions
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.UserOptions, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.UserOptions{}, nil
 }
 
 func (r *queryResolver) Role(ctx context.Context) (*model.RoleQueryOptions, error) {
