@@ -1,0 +1,28 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+# directive to force gqlgen to generate resolver
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+type ResponseToken {
+  token: String!
+}
+
+type AuthOptions {
+  register(newUser: NewUser!): ResponseToken! @goField(forceResolver: true)
+  login(user: LoginUser): ResponseToken! @goField(forceResolver: true)
+}
+
+type Query {
+  user: UserOptions! @goField(forceResolver: true)
+  role: RoleQueryOptions! @goField(forceResolver: true)
+}
+
+type Mutation {
+  auth: AuthOptions! @goField(forceResolver: true)
+  role: RoleMutationOptions! @goField(forceResolver: true)
+}

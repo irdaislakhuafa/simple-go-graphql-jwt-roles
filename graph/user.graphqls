@@ -1,0 +1,23 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  roles: [String!]!
+}
+
+input NewUser {
+  name: String!
+  email: String!
+  password: String!
+  roles: [String!]!
+}
+
+input LoginUser {
+  email: String!
+  password: String!
+}
+
+type UserOptions {
+  getAll: [User!]! @goField(forceResolver: true)
+}
