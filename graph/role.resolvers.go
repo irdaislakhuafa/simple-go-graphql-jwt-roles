@@ -12,12 +12,16 @@ import (
 )
 
 func (r *roleMutationOptionsResolver) Save(ctx context.Context, obj *model.RoleMutationOptions, newRole model.NewRole) (*model.Role, error) {
+	// convert to role
 	role := r.RoleService.ConvertNewRoleToEntityRole(&newRole)
+
+	// save new role
 	role, err := r.RoleService.Save(ctx, role)
 	if err != nil {
 		return nil, err
 	}
 
+	// convert to model
 	modelRole := r.RoleService.ConvertEntityRoleToModelRole(role)
 	return modelRole, nil
 }
