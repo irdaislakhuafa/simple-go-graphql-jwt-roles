@@ -28,10 +28,8 @@ func (as *AuthService) Login(ctx context.Context, loginUser *model.LoginUser) (*
 	// check is user exists?
 	us := GetUserService()
 	user, err := us.GetByEmail(ctx, &loginUser.Email)
-	if err != nil || user == nil {
-		if err != gorm.ErrRecordNotFound {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
 	}
 
 	// check password
@@ -47,5 +45,35 @@ func (as *AuthService) Login(ctx context.Context, loginUser *model.LoginUser) (*
 
 	// return token
 	log.Println("success login")
+	return &model.ResponseToken{Token: *tokenString}, nil
+}
+
+// method to register new user
+func (as *AuthService) Register(ctx context.Context, newUser *model.NewUser) (*model.ResponseToken, error) {
+	log.Println("entering method to register new user")
+
+	// check is user already exists
+	us := GetUserService()
+	user, err := us.GetByEmail(ctx, &newUser.Email)
+	if err != nil || user == nil {
+		if err != gorm.ErrRecordNotFound {
+			return nil, err
+		}
+	}
+
+	// convert to user entities
+	user = us.ConvertNewUserToEntityUserWithoutRoles(newUser)
+
+	// save new user
+	user, err = us.Save(ctx, user)
+	if err != nil || user == nil {
+		return nil, err
+	}
+
+	// generate token
+	tokenString, err := GenerateTokenString(ctx, user)
+
+	// return token
+	log.Println("success register")
 	return &model.ResponseToken{Token: *tokenString}, nil
 }
