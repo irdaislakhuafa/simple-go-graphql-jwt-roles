@@ -10,7 +10,7 @@ import (
 
 type UserService struct{}
 
-type UserServiceInterface interface {
+type UserServiceInterface[T any] interface {
 	GetByEmail(ctx context.Context, email *string) (*entities.User, error)
 	GetAll() ([]*entities.User, error)
 	Save(ctx context.Context, user *entities.User) (*entities.User, error)
@@ -45,4 +45,17 @@ func (us *UserService) GetByEmail(ctx context.Context, email *string) (*entities
 
 	log.Println("success get user by email")
 	return user, nil
+}
+
+func (us *UserService) GetAll() ([]*entities.User, error) {
+	log.Println("entering method to get all user")
+
+	var users []*entities.User
+	if err := config.GetDB().Find(&users).Error; err != nil {
+		log.Println("failed to get all user:", err)
+		return nil, err
+	}
+
+	log.Println("success get all user")
+	return users, nil
 }
