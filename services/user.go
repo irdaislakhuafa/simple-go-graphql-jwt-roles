@@ -4,16 +4,21 @@ import (
 	"context"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/tools"
 )
 
 type UserService struct{}
 
-type UserServiceInterface[T any] interface {
+type UserServiceInterface interface {
 	GetByEmail(ctx context.Context, email *string) (*entities.User, error)
 	GetAll() ([]*entities.User, error)
 	Save(ctx context.Context, user *entities.User) (*entities.User, error)
+	ConvertNewUserToEntityUserWithoutRoles(newUser *model.NewUser) *entities.User
+	ConvertEntityUserToModelUser(user *entities.User) *model.User
 }
 
 var userService *UserService = &UserService{}
@@ -58,4 +63,43 @@ func (us *UserService) GetAll() ([]*entities.User, error) {
 
 	log.Println("success get all user")
 	return users, nil
+}
+
+// method to convert NewUser to Entity User
+func (us *UserService) ConvertNewUserToEntityUserWithoutRoles(newUser *model.NewUser) *entities.User {
+	log.Println("entering method to convert NewUser to Entity User")
+	user := &entities.User{
+		ID:    uuid.NewString(),
+		Name:  newUser.Name,
+		Email: newUser.Email,
+		Password: func() string {
+			hashedPassword, err := tools.HashPassword(&newUser.Password)
+			if err != nil {
+				log.Println(err)
+				return newUser.Password
+			}
+			return *hashedPassword
+		}(),
+	}
+	log.Println("success convert")
+	return user
+}
+
+func (us *UserService) ConvertEntityUserToModelUser(user *entities.User) *model.User {
+	log.Println("entering method to convert Entity User to Model User")
+	modelUser := &model.User{
+		ID:       user.ID,
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: user.Password,
+		Roles: func() []string {
+			var roles []string
+			for _, v := range user.Roles {
+				roles = append(roles, v.Name)
+			}
+			return roles
+		}(),
+	}
+	log.Println("success convert")
+	return modelUser
 }
