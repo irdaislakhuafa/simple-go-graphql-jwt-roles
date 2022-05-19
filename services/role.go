@@ -18,6 +18,7 @@ func GetRoleService() *RoleService {
 	return roleService
 }
 
+// to save new role
 func (rs *RoleService) Save(ctx context.Context, role *entities.Role) (*entities.Role, error) {
 	log.Println("entering method to save new role")
 
@@ -30,6 +31,7 @@ func (rs *RoleService) Save(ctx context.Context, role *entities.Role) (*entities
 	return role, nil
 }
 
+// method to get role by name with ignore case
 func (rs *RoleService) GetByName(ctx context.Context, name *string) (*entities.Role, error) {
 	log.Println("entering method to get role by name")
 
@@ -43,6 +45,7 @@ func (rs *RoleService) GetByName(ctx context.Context, name *string) (*entities.R
 	return role, nil
 }
 
+// to get all roles
 func (rs *RoleService) GetAll() ([]*entities.Role, error) {
 	log.Println("entering method to get all roles")
 
@@ -57,7 +60,7 @@ func (rs *RoleService) GetAll() ([]*entities.Role, error) {
 }
 
 // method to convert Entity Role to Model Role
-func ConvertEntityRoleToModelRole(role *entities.Role) *model.Role {
+func (rs *RoleService) ConvertEntityRoleToModelRole(role *entities.Role) *model.Role {
 	log.Println("entering method to convert Entity Role to Model Role")
 	modelRole := &model.Role{
 		ID:          role.ID,
@@ -69,7 +72,7 @@ func ConvertEntityRoleToModelRole(role *entities.Role) *model.Role {
 }
 
 // method to convert NewRole to Entity Role
-func ConvertNewRoleToEntityRole(newRole *model.NewRole) *entities.Role {
+func (rs *RoleService) ConvertNewRoleToEntityRole(newRole *model.NewRole) *entities.Role {
 	log.Println("entering method to convert NewRole to Entity Role")
 	role := &entities.Role{
 		ID:          uuid.NewString(),

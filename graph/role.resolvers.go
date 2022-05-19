@@ -12,7 +12,14 @@ import (
 )
 
 func (r *roleMutationOptionsResolver) Save(ctx context.Context, obj *model.RoleMutationOptions, newRole model.NewRole) (*model.Role, error) {
-	panic(fmt.Errorf("not implemented"))
+	role := r.RoleService.ConvertNewRoleToEntityRole(&newRole)
+	role, err := r.RoleService.Save(ctx, role)
+	if err != nil {
+		return nil, err
+	}
+
+	modelRole := r.RoleService.ConvertEntityRoleToModelRole(role)
+	return modelRole, nil
 }
 
 func (r *roleQueryOptionsResolver) GetAll(ctx context.Context, obj *model.RoleQueryOptions) ([]*model.Role, error) {
