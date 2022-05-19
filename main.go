@@ -10,6 +10,7 @@ import (
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/services"
 	"github.com/joho/godotenv"
 )
 
@@ -27,7 +28,14 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	// graphql resolver config
+	resolverConfig := &generated.Config{
+		Resolvers: &graph.Resolver{
+			RoleService: services.GetRoleService(),
+		},
+	}
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(*resolverConfig))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

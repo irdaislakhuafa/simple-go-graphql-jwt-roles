@@ -24,7 +24,7 @@ func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOptions, error)
 }
 
 func (r *mutationResolver) Role(ctx context.Context) (*model.RoleMutationOptions, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.RoleMutationOptions{}, nil
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.UserOptions, error) {
@@ -32,7 +32,7 @@ func (r *queryResolver) User(ctx context.Context) (*model.UserOptions, error) {
 }
 
 func (r *queryResolver) Role(ctx context.Context) (*model.RoleQueryOptions, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.RoleQueryOptions{}, nil
 }
 
 // AuthOptions returns generated.AuthOptionsResolver implementation.
