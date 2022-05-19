@@ -21,14 +21,14 @@ func HashPassword(password *string) (*string, error) {
 }
 
 // to compare between real password and hashed password
-func CompareHashAndReal(hashedPassword, realPassword *string) bool {
+func CompareHashAndReal(hashedPassword, realPassword *string) (bool, error) {
 	log.Println("entering method to compare hashed password and real password")
 	err := bcrypt.CompareHashAndPassword([]byte(*hashedPassword), []byte(*realPassword))
 	if err != nil {
 		log.Println("failed to compare password:", err)
-		return false
+		return false, err
 	}
 
 	log.Println("success compare password")
-	return true
+	return true, nil
 }
