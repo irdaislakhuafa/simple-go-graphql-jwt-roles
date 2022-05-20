@@ -33,6 +33,7 @@ func main() {
 		Resolvers: &graph.Resolver{
 			RoleService: services.GetRoleService(),
 			UserService: services.GetUserService(),
+			AuthService: services.GetAuthService(),
 		},
 	}
 

@@ -5,20 +5,24 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
 )
 
-var secretKey []byte = []byte(func() string {
+// to get APP_SECRET_KEY as secret key from .env file
+func getSecretKey() []byte {
 	envSecretKey := os.Getenv("APP_SECRET_KEY")
 	if envSecretKey == "" {
 		log.Println("APP_SECRET_KEY is empty or not valid, using default secret key!")
-		return "default_secret"
+		return []byte("default_secret")
 	}
-	return envSecretKey
-}())
+	return []byte(envSecretKey)
+}
 
+// token claims struct
 type TokenClaims struct {
 	UserId string   `json:"user_id"`
 	Roles  []string `json:"roles"`
@@ -38,6 +42,18 @@ func generateJwtTokenWithClaims(ctx context.Context, user *entities.User) *jwt.T
 				}
 				return roles
 			}(),
+
+			StandardClaims: jwt.StandardClaims{
+				IssuedAt: time.Now().Unix(),
+				ExpiresAt: time.Now().Add(time.Minute * (func() time.Duration {
+					expiredInMinute, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRED_IN_MINUTE"))
+					if err != nil {
+						log.Println("APP_TOKEN_EXPIRED_IN_MINUTE is not valid, using default value 5 minute")
+						return time.Duration(5)
+					}
+					return time.Duration(expiredInMinute)
+				}())).Unix(),
+			},
 		},
 	)
 	log.Println("success generate jwt.Token with claims")
@@ -49,7 +65,7 @@ func GenerateTokenString(ctx context.Context, user *entities.User) (*string, err
 	log.Println("entering method to generate token string")
 
 	jwtToken := generateJwtTokenWithClaims(ctx, user)
-	tokenStringm, err := jwtToken.SignedString(secretKey)
+	tokenStringm, err := jwtToken.SignedString(getSecretKey())
 	if err != nil {
 		log.Println("failed to generate token string:", err)
 		return nil, err
@@ -77,7 +93,7 @@ func keyFunc(jwtToken *jwt.Token) (any, error) {
 	if _, isOk := jwtToken.Method.(*jwt.SigningMethodHMAC); !isOk {
 		return nil, fmt.Errorf("signing method is not valid")
 	}
-	return secretKey, nil
+	return getSecretKey(), nil
 }
 
 // to get claims from jwt.Token

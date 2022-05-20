@@ -5,22 +5,21 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model"
 )
 
 func (r *authOptionsResolver) Register(ctx context.Context, obj *model.AuthOptions, newUser model.NewUser) (*model.ResponseToken, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.AuthService.Register(ctx, &newUser)
 }
 
-func (r *authOptionsResolver) Login(ctx context.Context, obj *model.AuthOptions, user *model.LoginUser) (*model.ResponseToken, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *authOptionsResolver) Login(ctx context.Context, obj *model.AuthOptions, user model.LoginUser) (*model.ResponseToken, error) {
+	return r.AuthService.Login(ctx, &user)
 }
 
 func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOptions, error) {
-	panic(fmt.Errorf("not implemented"))
+	return &model.AuthOptions{}, nil
 }
 
 func (r *mutationResolver) Role(ctx context.Context) (*model.RoleMutationOptions, error) {
