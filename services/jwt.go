@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
@@ -41,6 +43,15 @@ func generateJwtTokenWithClaims(ctx context.Context, user *entities.User) *jwt.T
 
 			StandardClaims: jwt.StandardClaims{
 				// TODO: add IssueAt and ExpiredAt
+				IssuedAt: time.Now().Unix(),
+				ExpiresAt: time.Now().Add(time.Minute * (func() time.Duration {
+					expiredInMinute, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRED_IN_MINUTE"))
+					if err != nil {
+						log.Println("APP_TOKEN_EXPIRED_IN_MINUTE is not valid, using default value 5 minute")
+						return time.Duration(5)
+					}
+					return time.Duration(expiredInMinute)
+				}())).Unix(),
 			},
 		},
 	)

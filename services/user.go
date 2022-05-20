@@ -45,7 +45,7 @@ func (us *UserService) GetByEmail(ctx context.Context, email *string) (*entities
 	log.Println("entering method to get users by email")
 
 	user := &entities.User{}
-	if err := config.GetDB().Where("LOWER(email) = LOWER(?)", *email).Take(user).Error; err != nil {
+	if err := config.GetDB().Preload("Roles").Where("LOWER(email) = LOWER(?)", *email).Take(user).Error; err != nil {
 		log.Println("failed to get user by email:", err)
 		return nil, err
 	}

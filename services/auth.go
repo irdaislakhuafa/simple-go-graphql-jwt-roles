@@ -29,10 +29,12 @@ func (as *AuthService) Login(ctx context.Context, loginUser *model.LoginUser) (*
 
 	// check is user exists?
 	us := GetUserService()
+	// user := &entities.User{}
 	user, err := us.GetByEmail(ctx, &loginUser.Email)
 	if err != nil {
 		return nil, err
 	}
+	// log.Println("User:", *user)
 
 	// check password
 	if isOk, err := tools.CompareHashAndReal(&user.Password, &loginUser.Password); !isOk || err != nil {
