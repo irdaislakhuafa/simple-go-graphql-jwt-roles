@@ -79,6 +79,13 @@ func GenerateTokenString(ctx context.Context, user *entities.User) (*string, err
 func ValidateTokenString(ctx context.Context, tokenString *string) (*jwt.Token, error) {
 	log.Println("entering method to validate token string")
 
+	keyFunc := func(jwtToken *jwt.Token) (any, error) {
+		if _, isOk := jwtToken.Method.(*jwt.SigningMethodHMAC); !isOk {
+			return nil, fmt.Errorf("signing method is not valid")
+		}
+		return getSecretKey(), nil
+	}
+
 	jwtToken, err := jwt.ParseWithClaims(*tokenString, &TokenClaims{}, keyFunc)
 	if err != nil {
 		log.Println("failed to validate token:", err)
@@ -87,13 +94,6 @@ func ValidateTokenString(ctx context.Context, tokenString *string) (*jwt.Token, 
 
 	log.Println("success validate token string")
 	return jwtToken, nil
-}
-
-func keyFunc(jwtToken *jwt.Token) (any, error) {
-	if _, isOk := jwtToken.Method.(*jwt.SigningMethodHMAC); !isOk {
-		return nil, fmt.Errorf("signing method is not valid")
-	}
-	return getSecretKey(), nil
 }
 
 // to get claims from jwt.Token
