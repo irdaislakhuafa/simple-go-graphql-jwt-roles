@@ -76,7 +76,7 @@ func (as *AuthService) Register(ctx context.Context, newUser *model.NewUser) (*m
 		role, err := rs.GetByName(context.Background(), &v)
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, fmt.Errorf("role \"%s\" not found!", strings.ToUpper(v))
+				return nil, fmt.Errorf("role \"%s\" not found", strings.ToUpper(v))
 			}
 			return nil, err
 		}
