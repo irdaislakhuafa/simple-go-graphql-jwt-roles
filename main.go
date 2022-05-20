@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/mux"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
@@ -27,6 +28,12 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+
+	// initialize mux router
+	router := mux.NewRouter()
+
+	// use auth middleware
+	router.Use()
 
 	// graphql resolver config
 	resolverConfig := &generated.Config{
