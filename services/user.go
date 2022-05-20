@@ -59,7 +59,7 @@ func (us *UserService) GetAll() ([]*entities.User, error) {
 	log.Println("entering method to get all user")
 
 	var users []*entities.User
-	if err := config.GetDB().Find(&users).Error; err != nil {
+	if err := config.GetDB().Preload("Roles").Find(&users).Error; err != nil {
 		log.Println("failed to get all user:", err)
 		return nil, err
 	}
