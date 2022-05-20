@@ -12,14 +12,16 @@ import (
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
 )
 
-var secretKey []byte = []byte(func() string {
+// var secretKey []byte = []byte(*getSecretKey())
+
+func getSecretKey() []byte {
 	envSecretKey := os.Getenv("APP_SECRET_KEY")
 	if envSecretKey == "" {
 		log.Println("APP_SECRET_KEY is empty or not valid, using default secret key!")
-		return "default_secret"
+		return []byte("default_secret")
 	}
-	return envSecretKey
-}())
+	return []byte(envSecretKey)
+}
 
 type TokenClaims struct {
 	UserId string   `json:"user_id"`
@@ -64,7 +66,7 @@ func GenerateTokenString(ctx context.Context, user *entities.User) (*string, err
 	log.Println("entering method to generate token string")
 
 	jwtToken := generateJwtTokenWithClaims(ctx, user)
-	tokenStringm, err := jwtToken.SignedString(secretKey)
+	tokenStringm, err := jwtToken.SignedString(getSecretKey())
 	if err != nil {
 		log.Println("failed to generate token string:", err)
 		return nil, err
@@ -92,7 +94,7 @@ func keyFunc(jwtToken *jwt.Token) (any, error) {
 	if _, isOk := jwtToken.Method.(*jwt.SigningMethodHMAC); !isOk {
 		return nil, fmt.Errorf("signing method is not valid")
 	}
-	return secretKey, nil
+	return getSecretKey(), nil
 }
 
 // to get claims from jwt.Token
