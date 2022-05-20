@@ -12,8 +12,7 @@ import (
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/entities"
 )
 
-// var secretKey []byte = []byte(*getSecretKey())
-
+// to get APP_SECRET_KEY as secret key from .env file
 func getSecretKey() []byte {
 	envSecretKey := os.Getenv("APP_SECRET_KEY")
 	if envSecretKey == "" {
@@ -23,6 +22,7 @@ func getSecretKey() []byte {
 	return []byte(envSecretKey)
 }
 
+// token claims struct
 type TokenClaims struct {
 	UserId string   `json:"user_id"`
 	Roles  []string `json:"roles"`
@@ -44,7 +44,6 @@ func generateJwtTokenWithClaims(ctx context.Context, user *entities.User) *jwt.T
 			}(),
 
 			StandardClaims: jwt.StandardClaims{
-				// TODO: add IssueAt and ExpiredAt
 				IssuedAt: time.Now().Unix(),
 				ExpiresAt: time.Now().Add(time.Minute * (func() time.Duration {
 					expiredInMinute, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRED_IN_MINUTE"))
