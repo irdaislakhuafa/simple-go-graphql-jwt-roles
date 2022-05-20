@@ -78,11 +78,8 @@ func (as *AuthService) Register(ctx context.Context, newUser *model.NewUser) (*m
 			}
 			return nil, err
 		}
-		user.Roles = append(user.Roles, *role) // FIXME: why this error
+		user.Roles = append(user.Roles, *role)
 	}
-
-	// save user and roles in bridge table
-	// TODO: how save user_roles
 
 	// save new user
 	user, err = us.Save(ctx, user)
