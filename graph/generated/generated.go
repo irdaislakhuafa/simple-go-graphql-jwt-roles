@@ -49,7 +49,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AuthOptions struct {
-		Login    func(childComplexity int, user *model.LoginUser) int
+		Login    func(childComplexity int, user model.LoginUser) int
 		Register func(childComplexity int, newUser model.NewUser) int
 	}
 
@@ -96,7 +96,7 @@ type ComplexityRoot struct {
 
 type AuthOptionsResolver interface {
 	Register(ctx context.Context, obj *model.AuthOptions, newUser model.NewUser) (*model.ResponseToken, error)
-	Login(ctx context.Context, obj *model.AuthOptions, user *model.LoginUser) (*model.ResponseToken, error)
+	Login(ctx context.Context, obj *model.AuthOptions, user model.LoginUser) (*model.ResponseToken, error)
 }
 type MutationResolver interface {
 	Auth(ctx context.Context) (*model.AuthOptions, error)
@@ -141,7 +141,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.AuthOptions.Login(childComplexity, args["user"].(*model.LoginUser)), true
+		return e.complexity.AuthOptions.Login(childComplexity, args["user"].(model.LoginUser)), true
 
 	case "AuthOptions.register":
 		if e.complexity.AuthOptions.Register == nil {
@@ -359,7 +359,7 @@ type ResponseToken {
 
 type AuthOptions {
   register(newUser: NewUser!): ResponseToken! @goField(forceResolver: true)
-  login(user: LoginUser): ResponseToken! @goField(forceResolver: true)
+  login(user: LoginUser!): ResponseToken! @goField(forceResolver: true)
 }
 
 type Query {
@@ -425,10 +425,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_AuthOptions_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.LoginUser
+	var arg0 model.LoginUser
 	if tmp, ok := rawArgs["user"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-		arg0, err = ec.unmarshalOLoginUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginUser2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -593,7 +593,7 @@ func (ec *executionContext) _AuthOptions_login(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AuthOptions().Login(rctx, obj, fc.Args["user"].(*model.LoginUser))
+		return ec.resolvers.AuthOptions().Login(rctx, obj, fc.Args["user"].(model.LoginUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4226,6 +4226,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNLoginUser2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (model.LoginUser, error) {
+	res, err := ec.unmarshalInputLoginUser(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewRole2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐNewRole(ctx context.Context, v interface{}) (model.NewRole, error) {
 	res, err := ec.unmarshalInputNewRole(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4728,14 +4733,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOLoginUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (*model.LoginUser, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputLoginUser(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

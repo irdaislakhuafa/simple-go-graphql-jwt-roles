@@ -14,7 +14,7 @@ type ResponseToken {
 
 type AuthOptions {
   register(newUser: NewUser!): ResponseToken! @goField(forceResolver: true)
-  login(user: LoginUser): ResponseToken! @goField(forceResolver: true)
+  login(user: LoginUser!): ResponseToken! @goField(forceResolver: true)
 }
 
 type Query {

@@ -14,8 +14,8 @@ func (r *authOptionsResolver) Register(ctx context.Context, obj *model.AuthOptio
 	return r.AuthService.Register(ctx, &newUser)
 }
 
-func (r *authOptionsResolver) Login(ctx context.Context, obj *model.AuthOptions, user *model.LoginUser) (*model.ResponseToken, error) {
-	return r.AuthService.Login(ctx, user)
+func (r *authOptionsResolver) Login(ctx context.Context, obj *model.AuthOptions, user model.LoginUser) (*model.ResponseToken, error) {
+	return r.AuthService.Login(ctx, &user)
 }
 
 func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOptions, error) {
