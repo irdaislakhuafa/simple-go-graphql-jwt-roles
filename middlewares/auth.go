@@ -32,6 +32,18 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(writer, request)
 			return
 		}
+
+		// get bearer token string from HEADER_AUTHORIZATION
+		tokenString := auth[len(BEARER):]
+		if tokenString == "" { // if empty
+			errMessage := "token string is empty or not valid"
+			log.Println(errMessage)
+			request = overrideRequest(request, "errTokenEmpty", &errMessage)
+			return
+		}
+
+		// TODO: check token string validation
+		// TODO: insrt token claims to context
 	}
 
 	// return handler func
