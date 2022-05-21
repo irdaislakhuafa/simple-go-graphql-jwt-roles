@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/config"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/directives"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/generated"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/middlewares"
@@ -44,6 +45,10 @@ func main() {
 			AuthService: services.GetAuthService(),
 		},
 	}
+
+	// implement @auth(roles: [String!]!) directive
+	authDirective := directives.GetAuth()
+	resolverConfig.Directives.Auth = authDirective.AuthDirective
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(*resolverConfig))
 

@@ -9,6 +9,7 @@ directive @goField(
 ) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 # create @auth(roles [String!]!) directive
+directive @auth(roles: [String!]!) on FIELD_DEFINITION
 
 
 type ResponseToken {

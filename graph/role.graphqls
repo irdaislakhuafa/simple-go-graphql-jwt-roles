@@ -10,7 +10,7 @@ input NewRole {
 }
 
 type RoleQueryOptions {
-  getAll: [Role!]! @goField(forceResolver: true)
+  getAll: [Role!]! @goField(forceResolver: true) 
 }
 
 type RoleMutationOptions {

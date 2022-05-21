@@ -45,6 +45,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver, roles []string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -353,6 +354,10 @@ directive @goField(
   name: String
 ) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
+# create @auth(roles [String!]!) directive
+directive @auth(roles: [String!]!) on FIELD_DEFINITION
+
+
 type ResponseToken {
   token: String!
 }
@@ -384,7 +389,7 @@ input NewRole {
 }
 
 type RoleQueryOptions {
-  getAll: [Role!]! @goField(forceResolver: true)
+  getAll: [Role!]! @goField(forceResolver: true) 
 }
 
 type RoleMutationOptions {
@@ -412,7 +417,7 @@ input LoginUser {
 }
 
 type UserOptions {
-  getAll: [User!]! @goField(forceResolver: true)
+  getAll: [User!]! @goField(forceResolver: true) @auth(roles: [ "admin" ])
 }
 `, BuiltIn: false},
 }
@@ -421,6 +426,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_auth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []string
+	if tmp, ok := rawArgs["roles"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
+		arg0, err = ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["roles"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_AuthOptions_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1485,8 +1505,32 @@ func (ec *executionContext) _UserOptions_getAll(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UserOptions().GetAll(rctx, obj)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UserOptions().GetAll(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"admin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

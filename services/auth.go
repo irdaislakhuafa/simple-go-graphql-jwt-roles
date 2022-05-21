@@ -41,8 +41,6 @@ func (as *AuthService) Login(ctx context.Context, loginUser *model.LoginUser) (*
 		return nil, err
 	}
 
-	// TODO: get roles to generate token
-
 	// generate token string
 	tokenString, err := GenerateTokenString(ctx, user)
 	if err != nil {
