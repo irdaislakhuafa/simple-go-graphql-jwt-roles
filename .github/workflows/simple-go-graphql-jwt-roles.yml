@@ -23,7 +23,7 @@ jobs:
         with:
           args: |
             go build -o app main.go
-            cp -rv app /env/app
+            cp -rv app env/app
       
       - name: Login to Dockerhub
         uses: docker/login-action@v1
