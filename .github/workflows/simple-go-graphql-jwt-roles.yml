@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Setup Golang enviroment
-        uses: cedricking/golang-action@1.6.0
+        uses: cedrickring/golang-action@1.6.0
         with:
           args: |
             go build -o app main.go
