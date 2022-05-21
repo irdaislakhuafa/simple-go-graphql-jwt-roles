@@ -24,7 +24,7 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Build app
-        run: go build -o env/app main.go     
+        run: go build -o app main.go && ./app
       
       - name: Login to Dockerhub
         uses: docker/login-action@v1
