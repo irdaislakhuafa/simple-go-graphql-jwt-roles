@@ -11,13 +11,16 @@ import (
 )
 
 func (r *userOptionsResolver) GetAll(ctx context.Context, obj *model.UserOptions) ([]*model.User, error) {
+	// get all user
 	users, err := r.UserService.GetAll()
 	if err != nil {
 		return nil, err
 	}
 
+	// create array of struct model.User to return response
 	var modelUsers []*model.User
 	for _, v := range users {
+		// convert Entity User to Model User
 		modelUsers = append(modelUsers, r.UserService.ConvertEntityUserToModelUser(v))
 	}
 
