@@ -3,9 +3,12 @@ package directives
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/keys"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/services"
 )
 
 type authDirective struct{}
@@ -33,7 +36,8 @@ func (ad *authDirective) AuthDirective(ctx context.Context, object any, next gra
 	}
 
 	errErrors := []string{
-		"errTokenInvalid", // for check is token invalid
+		"errTokenInvalid",  // for check is token invalid
+		"errClaimsInvalid", // for check is claim invalid
 	}
 	for _, value := range errErrors {
 		if v := ctx.Value(keys.String(value)); v != nil {
@@ -41,5 +45,38 @@ func (ad *authDirective) AuthDirective(ctx context.Context, object any, next gra
 		}
 	}
 
+	// get claims from context
+	var claims *services.TokenClaims
+	if v := ctx.Value(keys.String("claims")); v != nil {
+		claims = v.(*services.TokenClaims)
+	}
+
+	// checking roles
+	err := ad.CheckRoles(roles, claims.Roles)
+	if err != nil {
+		return nil, err
+	}
+
 	panic("not implemented")
+}
+
+func (ad *authDirective) CheckRoles(expectedRoles []string, actualRoles []string) error {
+	log.Println("checking roles")
+
+	var err error
+	for i := 0; i < len(expectedRoles); i++ {
+		for j := 0; j < len(actualRoles); j++ {
+			log.Println("Expected:", actualRoles[j], ">>", "Actual:", expectedRoles[i], "=>", actualRoles[j] == expectedRoles[i])
+			if actualRoles[i] == expectedRoles[j] {
+				log.Println("role", strings.ToUpper(actualRoles[j]), "is allowed")
+				err = nil
+				break
+			} else {
+				err = fmt.Errorf("access denied, role %s not allowed", strings.ToUpper(actualRoles[j]))
+				log.Println(err.Error())
+			}
+		}
+	}
+
+	return err
 }

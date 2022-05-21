@@ -57,7 +57,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		claims, err := services.GetAllClaimsFromJwtToken(context.Background(), jwtToken)
 		if err != nil {
 			log.Println(err.Error())
-			request = overrideRequest(request, "errClaimsInvalid", claims)
+			request = overrideRequest(request, "errClaimsInvalid", err)
 			next.ServeHTTP(writer, request)
 			return
 		}
