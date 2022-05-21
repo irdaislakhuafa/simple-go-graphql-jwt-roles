@@ -45,11 +45,12 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver, roles []string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
 	AuthOptions struct {
-		Login    func(childComplexity int, user *model.LoginUser) int
+		Login    func(childComplexity int, user model.LoginUser) int
 		Register func(childComplexity int, newUser model.NewUser) int
 	}
 
@@ -90,13 +91,14 @@ type ComplexityRoot struct {
 	}
 
 	UserOptions struct {
-		GetAll func(childComplexity int) int
+		GetAll  func(childComplexity int) int
+		GetByID func(childComplexity int, userID string) int
 	}
 }
 
 type AuthOptionsResolver interface {
 	Register(ctx context.Context, obj *model.AuthOptions, newUser model.NewUser) (*model.ResponseToken, error)
-	Login(ctx context.Context, obj *model.AuthOptions, user *model.LoginUser) (*model.ResponseToken, error)
+	Login(ctx context.Context, obj *model.AuthOptions, user model.LoginUser) (*model.ResponseToken, error)
 }
 type MutationResolver interface {
 	Auth(ctx context.Context) (*model.AuthOptions, error)
@@ -114,6 +116,7 @@ type RoleQueryOptionsResolver interface {
 }
 type UserOptionsResolver interface {
 	GetAll(ctx context.Context, obj *model.UserOptions) ([]*model.User, error)
+	GetByID(ctx context.Context, obj *model.UserOptions, userID string) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -141,7 +144,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.AuthOptions.Login(childComplexity, args["user"].(*model.LoginUser)), true
+		return e.complexity.AuthOptions.Login(childComplexity, args["user"].(model.LoginUser)), true
 
 	case "AuthOptions.register":
 		if e.complexity.AuthOptions.Register == nil {
@@ -272,6 +275,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserOptions.GetAll(childComplexity), true
 
+	case "UserOptions.getById":
+		if e.complexity.UserOptions.GetByID == nil {
+			break
+		}
+
+		args, err := ec.field_UserOptions_getById_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.UserOptions.GetByID(childComplexity, args["userId"].(string)), true
+
 	}
 	return 0, false
 }
@@ -353,13 +368,17 @@ directive @goField(
   name: String
 ) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
+# create @auth(roles [String!]!) directive
+directive @auth(roles: [String!]!) on FIELD_DEFINITION
+
+
 type ResponseToken {
   token: String!
 }
 
 type AuthOptions {
   register(newUser: NewUser!): ResponseToken! @goField(forceResolver: true)
-  login(user: LoginUser): ResponseToken! @goField(forceResolver: true)
+  login(user: LoginUser!): ResponseToken! @goField(forceResolver: true)
 }
 
 type Query {
@@ -384,11 +403,11 @@ input NewRole {
 }
 
 type RoleQueryOptions {
-  getAll: [Role!]! @goField(forceResolver: true)
+  getAll: [Role!]! @goField(forceResolver: true) @auth(roles: [ "admin", "user" ])
 }
 
 type RoleMutationOptions {
-  save(newRole: NewRole!): Role! @goField(forceResolver: true)
+  save(newRole: NewRole!): Role! @goField(forceResolver: true) @auth(roles: [ "admin", "user" ])
 }
 `, BuiltIn: false},
 	{Name: "graph/user.graphqls", Input: `type User {
@@ -412,8 +431,9 @@ input LoginUser {
 }
 
 type UserOptions {
-  getAll: [User!]! @goField(forceResolver: true)
-}
+  getAll: [User!]! @goField(forceResolver: true) @auth(roles: [ "admin" ])
+  getById(userId: ID!): User! @goField(forceResolver: true) @auth(roles: [ "user", "admin" ])
+} 
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -422,13 +442,28 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) dir_auth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []string
+	if tmp, ok := rawArgs["roles"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
+		arg0, err = ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["roles"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AuthOptions_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.LoginUser
+	var arg0 model.LoginUser
 	if tmp, ok := rawArgs["user"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-		arg0, err = ec.unmarshalOLoginUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginUser2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -479,6 +514,21 @@ func (ec *executionContext) field_RoleMutationOptions_save_args(ctx context.Cont
 		}
 	}
 	args["newRole"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_UserOptions_getById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
 	return args, nil
 }
 
@@ -593,7 +643,7 @@ func (ec *executionContext) _AuthOptions_login(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AuthOptions().Login(rctx, obj, fc.Args["user"].(*model.LoginUser))
+		return ec.resolvers.AuthOptions().Login(rctx, obj, fc.Args["user"].(model.LoginUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -777,6 +827,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 			switch field.Name {
 			case "getAll":
 				return ec.fieldContext_UserOptions_getAll(ctx, field)
+			case "getById":
+				return ec.fieldContext_UserOptions_getById(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserOptions", field.Name)
 		},
@@ -1150,8 +1202,32 @@ func (ec *executionContext) _RoleMutationOptions_save(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RoleMutationOptions().Save(rctx, obj, fc.Args["newRole"].(model.NewRole))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.RoleMutationOptions().Save(rctx, obj, fc.Args["newRole"].(model.NewRole))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"admin", "user"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Role); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model.Role`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1213,8 +1289,32 @@ func (ec *executionContext) _RoleQueryOptions_getAll(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RoleQueryOptions().GetAll(rctx, obj)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.RoleQueryOptions().GetAll(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"admin", "user"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Role); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model.Role`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1485,8 +1585,32 @@ func (ec *executionContext) _UserOptions_getAll(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UserOptions().GetAll(rctx, obj)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UserOptions().GetAll(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"admin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1524,6 +1648,97 @@ func (ec *executionContext) fieldContext_UserOptions_getAll(ctx context.Context,
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserOptions_getById(ctx context.Context, field graphql.CollectedField, obj *model.UserOptions) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserOptions_getById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UserOptions().GetByID(rctx, obj, fc.Args["userId"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"user", "admin"})
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model.User`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserOptions_getById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserOptions",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_UserOptions_getById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -3853,6 +4068,26 @@ func (ec *executionContext) _UserOptions(ctx context.Context, sel ast.SelectionS
 				return innerFunc(ctx)
 
 			})
+		case "getById":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserOptions_getById(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4226,6 +4461,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNLoginUser2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (model.LoginUser, error) {
+	res, err := ec.unmarshalInputLoginUser(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewRole2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐNewRole(ctx context.Context, v interface{}) (model.NewRole, error) {
 	res, err := ec.unmarshalInputNewRole(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4381,6 +4621,10 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNUser2githubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
@@ -4728,14 +4972,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOLoginUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋsimpleᚑgoᚑgraphqlᚑjwtᚑrolesᚋgraphᚋmodelᚐLoginUser(ctx context.Context, v interface{}) (*model.LoginUser, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputLoginUser(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

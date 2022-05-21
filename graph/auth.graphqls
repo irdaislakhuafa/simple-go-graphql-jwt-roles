@@ -8,13 +8,17 @@ directive @goField(
   name: String
 ) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
+# create @auth(roles [String!]!) directive
+directive @auth(roles: [String!]!) on FIELD_DEFINITION
+
+
 type ResponseToken {
   token: String!
 }
 
 type AuthOptions {
   register(newUser: NewUser!): ResponseToken! @goField(forceResolver: true)
-  login(user: LoginUser): ResponseToken! @goField(forceResolver: true)
+  login(user: LoginUser!): ResponseToken! @goField(forceResolver: true)
 }
 
 type Query {

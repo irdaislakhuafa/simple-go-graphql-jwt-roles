@@ -10,9 +10,9 @@ input NewRole {
 }
 
 type RoleQueryOptions {
-  getAll: [Role!]! @goField(forceResolver: true)
+  getAll: [Role!]! @goField(forceResolver: true) @auth(roles: [ "admin", "user" ])
 }
 
 type RoleMutationOptions {
-  save(newRole: NewRole!): Role! @goField(forceResolver: true)
+  save(newRole: NewRole!): Role! @goField(forceResolver: true) @auth(roles: [ "admin", "user" ])
 }
