@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:latest
 WORKDIR /apps/simple-go-graphql-jwt-roles
 RUN rm -rf app env/*
 COPY app app
