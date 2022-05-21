@@ -22,6 +22,7 @@ jobs:
         uses: cedrickring/golang-action@1.6.0
         with:
           args: go build -o env/app main.go
+          GO111MODULE: "on"
            
       
       - name: Login to Dockerhub
