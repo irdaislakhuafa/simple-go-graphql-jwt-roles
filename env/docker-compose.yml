@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  simple-go-graphql-jwt-roles:
+    container_name: simple-go-graphql-jwt-roles
+    depends_on:
+      - mysql_dbms
+  mysql-dbms:
+    image: mysql:8.0.26
+    container_name: simple-go-graphql-jwt-roles-db
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=gql_jwt

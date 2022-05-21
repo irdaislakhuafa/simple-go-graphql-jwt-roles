@@ -21,7 +21,7 @@ const defaultPort = "8080"
 
 func main() {
 	// load .env file
-	godotenv.Load(".env")
+	godotenv.Load("env/.env")
 
 	// initialize database
 	config.InitDB()
