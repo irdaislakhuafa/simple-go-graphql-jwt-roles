@@ -74,7 +74,7 @@ func (ad *authDirective) CheckRoles(expectedRoles []string, actualRoles []string
 	for i := 0; i < len(expectedRoles); i++ {
 		for j := 0; j < len(actualRoles); j++ {
 			log.Println("Expected:", actualRoles[j], ">>", "Actual:", expectedRoles[i], "=>", actualRoles[j] == expectedRoles[i])
-			if actualRoles[i] == expectedRoles[j] {
+			if strings.ToLower(actualRoles[i]) == strings.ToLower(expectedRoles[j]) {
 				log.Println("role", strings.ToUpper(actualRoles[j]), "is allowed")
 				err = nil
 				break

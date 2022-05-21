@@ -19,5 +19,5 @@ input LoginUser {
 }
 
 type UserOptions {
-  getAll: [User!]! @goField(forceResolver: true) @auth
+  getAll: [User!]! @goField(forceResolver: true) @auth(roles: [ "admin" ])
 }
