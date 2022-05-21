@@ -1,3 +1,3 @@
 - TODO: Design Flowchart 
-
 - TODO: Description for service
+- TODO: build docker image and use it in docker compose
