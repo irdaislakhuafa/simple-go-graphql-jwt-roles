@@ -51,5 +51,6 @@ type User struct {
 }
 
 type UserOptions struct {
-	GetAll []*User `json:"getAll"`
+	GetAll  []*User `json:"getAll"`
+	GetByID *User   `json:"getById"`
 }
