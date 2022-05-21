@@ -8,10 +8,12 @@ import (
 	"strings"
 
 	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/keys"
+	"github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/services"
 )
 
 // TODO : implement AuthMiddleware
 func AuthMiddleware(next http.Handler) http.Handler {
+	log.Println("entering middleware section")
 
 	// create handler function
 	handlerFunc := func(writer http.ResponseWriter, request *http.Request) {
@@ -43,7 +45,26 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		// TODO: check token string validation
-		// TODO: insrt token claims to context
+		jwtToken, err := services.ValidateTokenString(context.Background(), &tokenString)
+		if err != nil || !jwtToken.Valid {
+			log.Println("token string is not valid:", err)
+			request = overrideRequest(request, "errTokenInvalid", err)
+			next.ServeHTTP(writer, request)
+			return
+		}
+
+		// get claims
+		claims, err := services.GetAllClaimsFromJwtToken(context.Background(), jwtToken)
+		if err != nil {
+			log.Println(err.Error())
+			request = overrideRequest(request, "errClaimsInvalid", claims)
+			next.ServeHTTP(writer, request)
+			return
+		}
+
+		// TODO: insert token claims to context
+		request = overrideRequest(request, "claims", claims)
+		next.ServeHTTP(writer, request)
 	}
 
 	// return handler func
