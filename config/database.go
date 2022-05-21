@@ -33,7 +33,7 @@ func InitDB() {
 }
 
 func getStringUrlFromEnv() *string {
-	log.Println("entering method to generate strung url from .env")
+	log.Println("entering method to generate strung url from env/.env")
 	url := `%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true`
 	url = fmt.Sprintf(
 		url,

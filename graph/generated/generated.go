@@ -407,7 +407,7 @@ type RoleQueryOptions {
 }
 
 type RoleMutationOptions {
-  save(newRole: NewRole!): Role! @goField(forceResolver: true) @auth(roles: [ "admin", "user" ])
+  save(newRole: NewRole!): Role! @goField(forceResolver: true) 
 }
 `, BuiltIn: false},
 	{Name: "graph/user.graphqls", Input: `type User {
@@ -1202,32 +1202,8 @@ func (ec *executionContext) _RoleMutationOptions_save(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.RoleMutationOptions().Save(rctx, obj, fc.Args["newRole"].(model.NewRole))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"admin", "user"})
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, obj, directive0, roles)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Role); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/irdaislakhuafa/simple-go-graphql-jwt-roles/graph/model.Role`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RoleMutationOptions().Save(rctx, obj, fc.Args["newRole"].(model.NewRole))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
