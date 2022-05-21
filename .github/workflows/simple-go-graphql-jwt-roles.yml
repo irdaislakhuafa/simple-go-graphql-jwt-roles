@@ -21,8 +21,7 @@ jobs:
       - name: Setup Golang enviroment
         uses: cedrickring/golang-action@1.6.0
         with:
-          args: |
-            go build -o app main.go && cp -rv app env/app
+          args: go build -o env/app main.go
            
       
       - name: Login to Dockerhub
