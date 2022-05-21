@@ -22,8 +22,8 @@ jobs:
         uses: cedrickring/golang-action@1.6.0
         with:
           args: |
-            go build -o app main.go
-            cp -rv app env/app
+            go build -o app main.go && cp -rv app env/app
+           
       
       - name: Login to Dockerhub
         uses: docker/login-action@v1
