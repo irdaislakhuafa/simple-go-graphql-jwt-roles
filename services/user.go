@@ -19,6 +19,7 @@ type UserServiceInterface interface {
 	Save(ctx context.Context, user *entities.User) (*entities.User, error)
 	ConvertNewUserToEntityUserWithoutRoles(newUser *model.NewUser) *entities.User
 	ConvertEntityUserToModelUser(user *entities.User) *model.User
+	GetUserByID(ctx context.Context, userId *string) (*entities.User, error)
 }
 
 var userService *UserService = &UserService{}

@@ -14,5 +14,5 @@ type RoleQueryOptions {
 }
 
 type RoleMutationOptions {
-  save(newRole: NewRole!): Role! @goField(forceResolver: true) @auth(roles: [ "admin" ])
+  save(newRole: NewRole!): Role! @goField(forceResolver: true) @auth(roles: [ "admin", "user" ])
 }

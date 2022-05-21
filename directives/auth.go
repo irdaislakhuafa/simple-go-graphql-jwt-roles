@@ -71,17 +71,26 @@ func (ad *authDirective) CheckRoles(expectedRoles []string, actualRoles []string
 	}
 
 	var err error
+	isPermited := false
 	for i := 0; i < len(expectedRoles); i++ {
 		for j := 0; j < len(actualRoles); j++ {
 			log.Println("Expected:", actualRoles[j], ">>", "Actual:", expectedRoles[i], "=>", actualRoles[j] == expectedRoles[i])
-			if strings.ToLower(actualRoles[i]) == strings.ToLower(expectedRoles[j]) {
+
+			if strings.EqualFold(actualRoles[j], expectedRoles[i]) {
 				log.Println("role", strings.ToUpper(actualRoles[j]), "is allowed")
 				err = nil
+				isPermited = true
 				break
 			} else {
 				err = fmt.Errorf("access denied, role %s not allowed", strings.ToUpper(actualRoles[j]))
+				isPermited = false
 				log.Println(err.Error())
 			}
+		}
+
+		// is permited
+		if isPermited {
+			break
 		}
 	}
 

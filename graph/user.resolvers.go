@@ -27,6 +27,17 @@ func (r *userOptionsResolver) GetAll(ctx context.Context, obj *model.UserOptions
 	return modelUsers, nil
 }
 
+func (r *userOptionsResolver) GetByID(ctx context.Context, obj *model.UserOptions, userID string) (*model.User, error) {
+	// get user by id
+	user, err := r.UserService.GetUserByID(ctx, &userID)
+	if err != nil {
+		return nil, err
+	}
+
+	modelUser := r.UserService.ConvertEntityUserToModelUser(user)
+	return modelUser, nil
+}
+
 // UserOptions returns generated.UserOptionsResolver implementation.
 func (r *Resolver) UserOptions() generated.UserOptionsResolver { return &userOptionsResolver{r} }
 
