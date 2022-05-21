@@ -107,3 +107,17 @@ func (us *UserService) ConvertEntityUserToModelUser(user *entities.User) *model.
 	log.Println("success convert")
 	return modelUser
 }
+
+// method to get user by id
+func (us *UserService) GetUserByID(ctx context.Context, userId *string) (*entities.User, error) {
+	log.Println("entering method to get user by id")
+
+	user := &entities.User{}
+	if err := config.GetDB().Where("id = ?", *userId).Take(user).Error; err != nil {
+		log.Println("failed to get user by id:", err)
+		return nil, err
+	}
+
+	log.Println("success get user by id")
+	return user, nil
+}
