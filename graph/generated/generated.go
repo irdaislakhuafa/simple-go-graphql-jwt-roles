@@ -417,7 +417,7 @@ input LoginUser {
 }
 
 type UserOptions {
-  getAll: [User!]! @goField(forceResolver: true) @auth(roles: [ "admin" ])
+  getAll: [User!]! @goField(forceResolver: true) @auth
 }
 `, BuiltIn: false},
 }
@@ -1510,14 +1510,10 @@ func (ec *executionContext) _UserOptions_getAll(ctx context.Context, field graph
 			return ec.resolvers.UserOptions().GetAll(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			roles, err := ec.unmarshalNString2ᚕstringᚄ(ctx, []interface{}{"admin"})
-			if err != nil {
-				return nil, err
-			}
 			if ec.directives.Auth == nil {
 				return nil, errors.New("directive auth is not implemented")
 			}
-			return ec.directives.Auth(ctx, obj, directive0, roles)
+			return ec.directives.Auth(ctx, obj, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)

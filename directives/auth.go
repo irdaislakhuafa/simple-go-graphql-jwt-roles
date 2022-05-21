@@ -57,11 +57,18 @@ func (ad *authDirective) AuthDirective(ctx context.Context, object any, next gra
 		return nil, err
 	}
 
-	panic("not implemented")
+	// direct to next resolvers
+	return next(ctx)
 }
 
 func (ad *authDirective) CheckRoles(expectedRoles []string, actualRoles []string) error {
 	log.Println("checking roles")
+
+	// if dont have any role
+	if len(expectedRoles) <= 0 {
+		log.Println("don't have any roles")
+		return nil
+	}
 
 	var err error
 	for i := 0; i < len(expectedRoles); i++ {
