@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -20,8 +22,20 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	// app mode
+	var mode string
+	flag.StringVar(&mode, "app-mode", "dev", "Put app mode here, use DEV for development mode and PROD for production")
+	flag.Parse()
+
 	// load .env file
-	godotenv.Load(".env")
+	if strings.EqualFold(mode, "prod") {
+		godotenv.Load("env/prod.env")
+	} else if strings.EqualFold(mode, "dev") {
+		godotenv.Load("env/dev.env")
+	} else {
+		log.Println("app-mode not valid, using default mode DEV")
+		godotenv.Load("env/dev.env")
+	}
 
 	// initialize database
 	config.InitDB()
