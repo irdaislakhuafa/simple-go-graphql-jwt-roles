@@ -1,16 +1,17 @@
 version: '3'
 
 services:
-  # app:
-  #   image: irdaislakhuafa/simple-go-graphql-jwt-roles:latest
-  #   container_name: simple-go-graphql-jwt-roles-app
-  #   restart: on-failure
-  #   ports:
-  #     - "8080:8080"
-  #   networks:
-  #     - simple-go-graphql-jwt-roles-net
-  #   depends_on:
-  #     - app-db
+  app:
+    image: irdaislakhuafa/simple-go-graphql-jwt-roles:latest
+    container_name: simple-go-graphql-jwt-roles-app
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    networks:
+      - simple-go-graphql-jwt-roles-net
+    depends_on:
+      - app-db
+
   app-db:
     image: mysql:8.0.26
     container_name: simple-go-graphql-jwt-roles-db
