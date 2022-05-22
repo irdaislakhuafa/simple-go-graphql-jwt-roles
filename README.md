@@ -19,7 +19,7 @@ Run this command and docker will prepare the enviroment to run this app
 
 ```bash
 cd env/
-docker compose f docker-compose.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 ## How to use
